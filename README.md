@@ -21,6 +21,12 @@ The file format has the following components:
 1. Grid state: Multiple lines of space separated values. Each line being a row (y-dimension) and values in line being the cells in columns (x-dimension).
 1. Simulator state: Simulator can dump state at any time in this section to allow it to resume from this point.
 
+Implementation-wise this file format can be a program which returns an object which has the above fields when run. For large grids with repeatable patterns this allows one to use a more compact format for the grid.
+
+However this also makes visualization of the grid difficult which means a basic viewer would be necessary.
+
+TODO: finalize file format
+
 ## Agent
 An agent is a program which is placed in the simulator, and is allowed to move and perform certain actions. In the simple space example given above the agent can move to a neighbouring cell, and also clean it.
 

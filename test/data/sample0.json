@@ -1,0 +1,55 @@
+{
+    "metadata": {
+        "name": "sample0",
+        "author": "abhishekmishra"
+    },
+    "grid": {
+        "dimensions": {
+            "x": 5,
+            "y": 3
+        },
+        "celltypes": {
+            "0": "empty",
+            "1": "wall",
+            "2": "dirty"
+        },
+        "agents": {
+            "A": {
+                "x": 2,
+                "y": 2
+            },
+            "B": null,
+            "C": {
+                "x": 4,
+                "y": 2
+            }
+        },
+        "cells": [
+            [
+                0,
+                0,
+                0,
+                2,
+                1
+            ],
+            [
+                2,
+                2,
+                0,
+                1,
+                1
+            ],
+            [
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        ]
+    },
+    "state": {
+        "var0": 100,
+        "var1": "some"
+    }
+}
