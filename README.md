@@ -4,7 +4,7 @@ A __simulator__ for a simple two dimensional space (or grid) which has various k
 ## MopGrid Space
 The simplest space has 3 kinds of cells:
 1. Empty Cell (Value 0)
-2. Wall Cell (Value 1)
+2. Wall/Filled (Cannot go) Cell (Value 1)
 3. Dirty Cell (Value 2)
 
 In general an agent can move to any 0 or even-numbered cell.
@@ -17,7 +17,7 @@ The file format has the following components:
 1. Metadata: Program name, generation date etc. 
 1. Cell Types: This is a space separated sequence of numbers. All possible values at a grid can be listed here for e.g. "0 1 2" - OR this can also be a range of values [0-2].
 1. Agents: Names of agents which are present in the map. Agent names are alphanumeric to distinguish from cell values. for e.g. "A B C"
-1. Grid/space Dimensions: Space separated list of dimension size. for e.g. "10 20" - which is a 10x20 grid
+1. Grid/space Dimensions [X Y]: Space separated list of dimension size. for e.g. "10 20" - which is a 10x20 grid
 1. Grid state: Multiple lines of space separated values. Each line being a row (y-dimension) and values in line being the cells in columns (x-dimension).
 1. Simulator state: Simulator can dump state at any time in this section to allow it to resume from this point.
 
