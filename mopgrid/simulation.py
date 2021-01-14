@@ -64,9 +64,9 @@ class Simulation:
 
                 agent_commands = []
                 for agent in self.agents:
-                    (row, col) = self.space.where_am_i(id=agent.id)
-                    dirty = self.space.is_dirty(location=(row, col))
-                    cmd = agent.next_command(location=(row, col), dirty=dirty)
+                    location = self.space.where_am_i(id=agent.id)
+                    dirty = self.space.is_dirty(location=location)
+                    cmd = agent.next_command(location=location, dirty=dirty)
                     try:
                         if cmd.command == "clean":
                             self.space.clean(cmd.agent_id, cmd.location)
@@ -85,9 +85,9 @@ class Simulation:
                                              location=se.loc)
                     except Exception as e:
                         cmd.status = False
-                        cmd.failure_reason = e.message
+                        cmd.failure_reason = str(e)
                         agent_commands.append(cmd)
-                        agent.command_result(success=False, failure_reason=e.message,
+                        agent.command_result(success=False, failure_reason=str(e),
                                              err_code=SimulationErrorCode.SIM_ERR_UNKNOWN, location=cmd.location)
                 for viewer in self.viewers:
                     viewer.show_state(self.round, agent_commands, self.space, self.agents)

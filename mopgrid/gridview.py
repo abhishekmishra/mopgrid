@@ -50,8 +50,8 @@ def draw_dirty(graph, w, h, x, y):
 
 def draw_grid(graph, grid):
     grid_details = grid["grid"]
-    width = grid_details["dimensions"]["x"]
-    height = grid_details["dimensions"]["y"]
+    width = grid_details["dimensions"]["col"]
+    height = grid_details["dimensions"]["row"]
     cells = grid_details["cells"]
     agents = grid_details["agents"]
     draw_grid_lines(graph, height, width)
@@ -65,7 +65,7 @@ def draw_grid(graph, grid):
     for agent, loc in agents.items():
         print(agent, loc)
         if loc is not None:
-            cx, cy, cell_w, cell_h = cell_loc(width, height, loc['x'], loc['y'])
+            cx, cy, cell_w, cell_h = cell_loc(width, height, loc['col'], loc['row'])
             font_size = round(min(cell_w, cell_h))
             print(font_size)
             graph.DrawText(agent, location=(cx + (cell_w/2), cy + (cell_h/2)), color='red',
