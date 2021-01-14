@@ -3,6 +3,7 @@ import json
 import numpy as np
 from enum import IntEnum
 import random
+from mopgrid.simerrors import SimulationError, SimulationErrorCode
 
 
 class CellType(IntEnum):
@@ -15,6 +16,18 @@ class Coords:
     def __init__(self, row, column):
         self.row = row
         self.column = column
+
+    def __str__(self):
+        return "[" + str(self.row) + ", " + str(self.col) + "]"
+
+
+class AgentState:
+    def __init__(self, agent_id, loc):
+        self.agent_id = agent_id
+        self.loc = loc
+
+    def move_to(self, to_loc):
+        self.loc = to_loc
 
 
 class Command:
@@ -40,8 +53,10 @@ class Space:
         self.dirty_prob = dirty_prob
         self.wall_prob = wall_prob
         self.space = np.zeros([size.row, size.column], dtype=int)
+        self.agent_space = np.zeros([size.row, size.column], dtype=int)
         self.random_wall()
         self.random_dirty()
+        self.agents = {}
 
     def random_wall(self):
         for y in range(self.size.row):
@@ -72,7 +87,7 @@ class Space:
 
     def has_agent(self, loc):
         val = self.query(loc)
-        if val > 2 and val%2 == 1:
+        if val > 2 and val % 2 == 1:
             return True
         else:
             return False
@@ -82,12 +97,88 @@ class Space:
             return True
         return False
 
+    def where_am_i(self, agent_id):
+        a = self.agents[agent_id]
+        if a is not None:
+            return a.loc
+        else:
+            return None
+
     def init_agent(self):
         count_tries = 0
         while count_tries < 10:
             row = random.randint(0, self.size.row)
             col = random.randint(0, self.size.column)
+            loc = Coords(row, col)
 
+            if self.can_place_agent(loc):
+                agent_id = -1
+                if len(self.agents.keys()) == 0:
+                    agent_id = 3
+                else:
+                    agent_id = max(self.agents.keys()) + 2
+                print("agent added = " + str(agent_id))
+                self.agents[agent_id] = AgentState(agent_id, loc)
+                self.agent_space[loc.row, loc.column] = agent_id
+                return agent_id
+            count_tries += 1
+
+    def check_range(self, loc):
+        if loc.row < 0 or loc.row >= self.size.row or loc.col < 0 or loc.col >= self.size.col:
+            raise SimulationError("Row/col is out of range: " + str(loc),
+                                  SimulationErrorCode.SIM_ERR_OUT_OF_RANGE, loc)
+
+    def move_agent(self, agent_id, to_loc):
+        self.check_range(to_loc)
+        if agent_id in self.agents:
+            a = self.agents[agent_id]
+            if abs(to_loc.row - self.size.row) < 2 and abs(to_loc.column - self.size.column) < 2:
+                if not self.is_wall(to_loc):
+                    if self.query(to_loc) == CellType.EMPTY:
+                        self.agent_space[a.loc.row, a.loc.column] = CellType.EMPTY
+                        self.agent_space[to_loc.row, to_loc.column] = agent_id
+                        a.move_to(to_loc)
+                    else:
+                        raise SimulationError("There is already an agent there!",
+                                              SimulationErrorCode.SIM_ERR_AGENT_COLLISION, to_loc)
+                else:
+                    raise SimulationError("Cannot move into a wall!",
+                                          SimulationErrorCode.SIM_ERR_MOVE_TO_WALL, to_loc)
+            else:
+                raise SimulationError("New location is not adjacent!",
+                                      SimulationErrorCode.SIM_ERR_LOCATION_NOT_ADJACENT, to_loc)
+        else:
+            raise SimulationError("Agent does not exist!",
+                                  SimulationErrorCode.SIM_ERR_NO_SUCH_AGENT, to_loc)
+
+    def clean(self, agent_id, to_loc):
+        self.check_range(to_loc)
+        if agent_id in self.agents:
+            a = self.agents[agent_id]
+            if a.loc.row == to_loc.row and a.loc.column == to_loc.column:
+                if self.is_dirty(to_loc):
+                    self.space[to_loc.row, to_loc.column] = CellType.EMPTY
+                else:
+                    raise SimulationError("Location is not dirty!", SimulationErrorCode.SIM_ERR_LOCATION_NOT_DIRTY,
+                                          to_loc)
+            else:
+                raise SimulationError("Agent is not at the location to clean!",
+                                      SimulationErrorCode.SIM_ERR_AGENT_NOT_AT_LOCATION, to_loc)
+        else:
+            raise SimulationError("Agent does not exist!",
+                                  SimulationErrorCode.SIM_ERR_NO_SUCH_AGENT, to_loc)
+
+    def total_dirty(self):
+        count = 0
+        for i in range(self.size.row):
+            for j in range(self.size.column):
+                if self.is_dirty(Coords(i, j)):
+                    count += 1
+        return count
+
+    def has_dirty(self):
+        # can improve by returning after finding first dirty cell
+        return self.total_dirty() > 0
 
 
 def sample_grid():
