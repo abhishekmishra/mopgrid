@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from mopgrid.simerrors import SimulationError, SimulationErrorCode
+from mopgrid.space import Space, CellType, Coords
 
 
 class SimState(Enum):
@@ -36,7 +37,7 @@ class Simulation:
 
     def prepare(self):
         # create the space from config
-        self.space = None
+        self.space = Space()
         # create the agents from config
         self.agents = []
         # create initial locations for agents in the space
@@ -99,3 +100,8 @@ class Simulation:
 
     def _publish_stats(self):
         pass
+
+
+if __name__ == '__main__':
+    sim = Simulation()
+    sim.run()
