@@ -49,9 +49,9 @@ def draw_dirty(graph, w, h, x, y):
 
 
 def draw_grid(graph, grid):
-    grid_details = grid["grid"]
-    width = grid_details["dimensions"]["col"]
-    height = grid_details["dimensions"]["row"]
+    grid_details = grid["space"]
+    width = grid_details["size"]["col"]
+    height = grid_details["size"]["row"]
     cells = grid_details["cells"]
     agents = grid_details["agents"]
     draw_grid_lines(graph, height, width)

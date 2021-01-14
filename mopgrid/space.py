@@ -1,10 +1,11 @@
 import os
 import json
 import numpy as np
-from enum import Enum
+from enum import IntEnum
+import random
 
 
-class CellType(Enum):
+class CellType(IntEnum):
     EMPTY = 0
     WALL = 1
     DIRTY = 2
@@ -45,7 +46,49 @@ class Space:
     def random_wall(self):
         for y in range(self.size.row):
             for x in range(self.size.column):
-                pass
+                r = random.random()
+                if r <= self.wall_prob:
+                    self.space[y, x] = CellType.WALL
+
+    def random_dirty(self):
+        for y in range(self.size.row):
+            for x in range(self.size.column):
+                if self.space[y, x] != CellType.WALL:
+                    r = random.random()
+                    if r <= self.dirty_prob:
+                        self.space[y, x] = CellType.DIRTY
+
+    def query(self, loc):
+        return self.space[loc.row, loc.col]
+
+    def is_dirty(self, loc):
+        return self.query(loc) == CellType.DIRTY
+
+    def is_wall(self, loc):
+        return self.query(loc) == CellType.WALL
+
+    def is_clean(self, loc):
+        return not self.is_dirty(loc)
+
+    def has_agent(self, loc):
+        val = self.query(loc)
+        if val > 2 and val%2 == 1:
+            return True
+        else:
+            return False
+
+    def can_place_agent(self, loc):
+        if self.query(loc) == CellType.EMPTY or self.is_dirty(loc):
+            return True
+        return False
+
+    def init_agent(self):
+        count_tries = 0
+        while count_tries < 10:
+            row = random.randint(0, self.size.row)
+            col = random.randint(0, self.size.column)
+
+
 
 def sample_grid():
     gpath = os.path.join(os.getcwd(), "..", "test", "data", "sample0.json")
@@ -56,5 +99,5 @@ def sample_grid():
 
 
 if __name__ == "__main__":
-    g = sample_grid()
-    print(g["metadata"])
+    s = Space()
+    print(s.space)

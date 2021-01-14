@@ -3,8 +3,8 @@
         "name": "sample0",
         "author": "abhishekmishra"
     },
-    "grid": {
-        "dimensions": {
+    "space": {
+        "size": {
             "col": 5,
             "row": 3
         },
