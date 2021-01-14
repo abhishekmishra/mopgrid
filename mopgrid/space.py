@@ -1,5 +1,13 @@
 import os
 import json
+import numpy as np
+from enum import Enum
+
+
+class CellType(Enum):
+    EMPTY = 0
+    WALL = 1
+    DIRTY = 2
 
 
 class Coords:
@@ -30,7 +38,14 @@ class Space:
         self.size = size
         self.dirty_prob = dirty_prob
         self.wall_prob = wall_prob
+        self.space = np.zeros([size.row, size.column], dtype=int)
+        self.random_wall()
+        self.random_dirty()
 
+    def random_wall(self):
+        for y in range(self.size.row):
+            for x in range(self.size.column):
+                pass
 
 def sample_grid():
     gpath = os.path.join(os.getcwd(), "..", "test", "data", "sample0.json")
