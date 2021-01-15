@@ -85,8 +85,8 @@ class Simulation:
                 "space": {
                     "config": {
                         "size": {
-                            "row": 4,
-                            "col": 4
+                            "row": 10,
+                            "col": 10
                         },
                         "dirt_probability": 0.3,
                         "wall_probability": 0.1
