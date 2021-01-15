@@ -1,55 +1,59 @@
 {
-    "metadata": {
-        "name": "sample0",
-        "author": "abhishekmishra"
+  "metadata": {
+    "name": "sample0",
+    "author": "abhishekmishra"
+  },
+  "space": {
+    "config": {
+      "size": {
+        "col": 5,
+        "row": 3
+      },
+      "celltypes": {
+        "0": "empty",
+        "1": "wall",
+        "2": "dirty"
+      },
+      "dirt_probability": 0.3,
+      "wall_probability": 0.1
     },
-    "space": {
-        "size": {
-            "col": 5,
-            "row": 3
-        },
-        "celltypes": {
-            "0": "empty",
-            "1": "wall",
-            "2": "dirty"
-        },
-        "agents": {
-            "A": {
-                "col": 2,
-                "row": 2
-            },
-            "B": null,
-            "C": {
-                "col": 3,
-                "row": 2
-            }
-        },
-        "cells": [
-            [
-                0,
-                0,
-                0,
-                2,
-                1
-            ],
-            [
-                2,
-                2,
-                0,
-                1,
-                1
-            ],
-            [
-                0,
-                0,
-                0,
-                0,
-                0
-            ]
-        ]
+    "cells": [
+      [
+        0,
+        0,
+        0,
+        2,
+        1
+      ],
+      [
+        2,
+        2,
+        0,
+        1,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "agents": {
+    "A": {
+      "col": 2,
+      "row": 2
     },
-    "state": {
-        "var0": 100,
-        "var1": "some"
+    "B": null,
+    "C": {
+      "col": 3,
+      "row": 2
     }
+  },
+  "state": {
+    "var0": 100,
+    "var1": "some"
+  }
 }

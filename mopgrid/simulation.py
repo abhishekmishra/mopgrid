@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from mopgrid.simerrors import SimulationError, SimulationErrorCode
 from mopgrid.space import Space, CellType, Coords
+from mopgrid.agent_factory import AgentFactory
+import json
 
 
 class SimState(Enum):
@@ -10,10 +12,11 @@ class SimState(Enum):
 
 
 class Simulation:
-    def __init__(self, config=None):
-        self.config = config
-        if config is None:
-            self._load_default_config()
+    def __init__(self, config_file=None):
+        self.agent_factory = AgentFactory()
+        self.config_file = config_file
+        self.config = None
+        self._load_config()
 
         self.viewers = []
         self.aggregators = []
@@ -24,8 +27,41 @@ class Simulation:
         self.agents = None
         self.abort = False
 
-    def _load_default_config(self):
-        pass
+    def _load_config(self):
+        if self.config_file:
+            with open(self.config_file, "r") as f:
+                self.config = json.loads(f.read())
+        else:
+            self.config = {
+                "space": {
+                    "config": {
+                        "size": {
+                            "row": 2,
+                            "col": 2
+                        },
+                        "dirt_probability": 0.3,
+                        "wall_probability": 0.1
+                    }
+                },
+                "agents": [
+                    {
+                        "type": "simple",
+                        "params": {}
+                    },
+                    # {
+                    #     "type": "simple.bound",
+                    #     "params": {}
+                    # },
+                    # {
+                    #     "type": "simple.boundandwall",
+                    #     "params": {}
+                    # },
+                    # {
+                    #     "type": "spiral",
+                    #     "params": {}
+                    # },
+                ]
+            }
 
     def run(self):
         if self._state == SimState.STOPPED:
@@ -36,10 +72,20 @@ class Simulation:
                                   err_code=SimulationErrorCode.SIM_ERR_SIM_RUNNING)
 
     def prepare(self):
+        space_config = self.config["space"]["config"]
         # create the space from config
-        self.space = Space()
+        self.space = Space(size=Coords(space_config["size"]["row"],
+                                       space_config["size"]["col"]),
+                           dirty_prob=space_config["dirt_probability"],
+                           wall_prob=space_config["wall_probability"])
         # create the agents from config
-        self.agents = []
+        self.agents = self.agent_factory.create_agents(self.config["agents"])
+        for a in self.agents:
+            agent_id = self.space.init_agent()
+            a.agent_id = agent_id
+            a.space_size = self.space.size
+
+        print(self.agents)
         # create initial locations for agents in the space
         pass
 
@@ -57,7 +103,7 @@ class Simulation:
 
         if len(self.agents) > 0:
             self.round = 1
-            while self.space.has_dirty_cell():
+            while self.space.has_dirty():
                 if self.abort:
                     self.abort = False
                     self._state = SimState.ABORTED
@@ -65,7 +111,7 @@ class Simulation:
 
                 agent_commands = []
                 for agent in self.agents:
-                    location = self.space.where_am_i(id=agent.id)
+                    location = self.space.where_am_i(agent_id=agent.agent_id)
                     dirty = self.space.is_dirty(location=location)
                     cmd = agent.next_command(location=location, dirty=dirty)
                     try:

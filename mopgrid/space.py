@@ -13,9 +13,9 @@ class CellType(IntEnum):
 
 
 class Coords:
-    def __init__(self, row, column):
+    def __init__(self, row, col):
         self.row = row
-        self.column = column
+        self.col = col
 
     def __str__(self):
         return "[" + str(self.row) + ", " + str(self.col) + "]"
@@ -43,8 +43,8 @@ def clean_command(agent_id):
     return Command(agent_id=agent_id, command="clean")
 
 
-def moveto_command(agent_id, x, y):
-    return Command(agent_id=agent_id, command="move_to", location=Coords(row=x, column=y))
+def moveto_command(agent_id, loc):
+    return Command(agent_id=agent_id, command="move_to", location=loc)
 
 
 class Space:
@@ -52,22 +52,22 @@ class Space:
         self.size = size
         self.dirty_prob = dirty_prob
         self.wall_prob = wall_prob
-        self.space = np.zeros([size.row, size.column], dtype=int)
-        self.agent_space = np.zeros([size.row, size.column], dtype=int)
+        self.space = np.zeros([size.row, size.col], dtype=int)
+        self.agent_space = np.zeros([size.row, size.col], dtype=int)
         self.random_wall()
         self.random_dirty()
         self.agents = {}
 
     def random_wall(self):
         for y in range(self.size.row):
-            for x in range(self.size.column):
+            for x in range(self.size.col):
                 r = random.random()
                 if r <= self.wall_prob:
                     self.space[y, x] = CellType.WALL
 
     def random_dirty(self):
         for y in range(self.size.row):
-            for x in range(self.size.column):
+            for x in range(self.size.col):
                 if self.space[y, x] != CellType.WALL:
                     r = random.random()
                     if r <= self.dirty_prob:
@@ -107,8 +107,8 @@ class Space:
     def init_agent(self):
         count_tries = 0
         while count_tries < 10:
-            row = random.randint(0, self.size.row)
-            col = random.randint(0, self.size.column)
+            row = random.randint(0, self.size.row - 1)
+            col = random.randint(0, self.size.col - 1)
             loc = Coords(row, col)
 
             if self.can_place_agent(loc):
@@ -119,7 +119,7 @@ class Space:
                     agent_id = max(self.agents.keys()) + 2
                 print("agent added = " + str(agent_id))
                 self.agents[agent_id] = AgentState(agent_id, loc)
-                self.agent_space[loc.row, loc.column] = agent_id
+                self.agent_space[loc.row, loc.col] = agent_id
                 return agent_id
             count_tries += 1
 
@@ -132,11 +132,11 @@ class Space:
         self.check_range(to_loc)
         if agent_id in self.agents:
             a = self.agents[agent_id]
-            if abs(to_loc.row - self.size.row) < 2 and abs(to_loc.column - self.size.column) < 2:
+            if abs(to_loc.row - self.size.row) < 2 and abs(to_loc.col - self.size.col) < 2:
                 if not self.is_wall(to_loc):
                     if self.query(to_loc) == CellType.EMPTY:
-                        self.agent_space[a.loc.row, a.loc.column] = CellType.EMPTY
-                        self.agent_space[to_loc.row, to_loc.column] = agent_id
+                        self.agent_space[a.loc.row, a.loc.col] = CellType.EMPTY
+                        self.agent_space[to_loc.row, to_loc.col] = agent_id
                         a.move_to(to_loc)
                     else:
                         raise SimulationError("There is already an agent there!",
@@ -155,9 +155,9 @@ class Space:
         self.check_range(to_loc)
         if agent_id in self.agents:
             a = self.agents[agent_id]
-            if a.loc.row == to_loc.row and a.loc.column == to_loc.column:
+            if a.loc.row == to_loc.row and a.loc.col == to_loc.col:
                 if self.is_dirty(to_loc):
-                    self.space[to_loc.row, to_loc.column] = CellType.EMPTY
+                    self.space[to_loc.row, to_loc.col] = CellType.EMPTY
                 else:
                     raise SimulationError("Location is not dirty!", SimulationErrorCode.SIM_ERR_LOCATION_NOT_DIRTY,
                                           to_loc)
@@ -171,7 +171,7 @@ class Space:
     def total_dirty(self):
         count = 0
         for i in range(self.size.row):
-            for j in range(self.size.column):
+            for j in range(self.size.col):
                 if self.is_dirty(Coords(i, j)):
                     count += 1
         return count
