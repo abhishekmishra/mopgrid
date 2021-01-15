@@ -11,6 +11,10 @@ class SimState(Enum):
     ABORTED = auto()
 
 
+def clear_screen():
+    print(chr(27) + "[2J")
+
+
 class ConsoleSimViewer:
     def sim_aborted(self):
         print("Sim Aborted");
@@ -21,8 +25,38 @@ class ConsoleSimViewer:
     def sim_complete(self, sim_num, sim_name):
         print("Sim #" + str(sim_num) + ":" + str(sim_name) + " completed.")
 
-    def show_state(self, sim_round, commands, space, agents_space):
-        pass
+    def show_state(self, sim_round, commands, space, agents):
+        clear_screen()
+        print("Round #" + str(sim_round))
+        for command in commands:
+            if command.status:
+                print("Agent {id} command {cmd} done.".format(id=command.agent_id, cmd=command.command))
+            else:
+                print("Agent {id} command {cmd} failed: {reason}.".format(id=command.agent_id, cmd=command.command,
+                                                                          reason=command.failure_reason))
+        grid = space.space
+        for i in range(space.size.row):
+            for j in range(space.size.col):
+                if grid[i, j] == CellType.EMPTY:
+                    print("▢", end='')
+                elif grid[i, j] == CellType.WALL:
+                    print("◉", end='')
+                elif grid[i, j] == CellType.DIRTY:
+                    print("▩", end='')
+
+                has_agent = False
+                for agent in agents:
+                    # print(agent.agent_id, agent.loc)
+                    if agent.loc and agent.loc.row == i and agent.loc.col == j:
+                        print(chr(ord('A') + int((agent.agent_id - 2) / 2)), end='')
+                        has_agent = True
+                if not has_agent:
+                    print(' ', end='')
+            print()
+            # if agents_space[i, j] == CellType.EMPTY:
+            #     print("  ")
+            # else:
+            #     print("XA")
 
     def show_message(self, message):
         pass
@@ -53,8 +87,8 @@ class Simulation:
                 "space": {
                     "config": {
                         "size": {
-                            "row": 2,
-                            "col": 2
+                            "row": 3,
+                            "col": 3
                         },
                         "dirt_probability": 0.3,
                         "wall_probability": 0.1
@@ -129,8 +163,8 @@ class Simulation:
                 agent_commands = []
                 for agent in self.agents:
                     location = self.space.where_am_i(agent_id=agent.agent_id)
-                    dirty = self.space.is_dirty(location=location)
-                    cmd = agent.next_command(location=location, dirty=dirty)
+                    dirty = self.space.is_dirty(loc=location)
+                    cmd = agent.next_command(loc=location, is_dirty=dirty)
                     try:
                         if cmd.command == "clean":
                             self.space.clean(cmd.agent_id, cmd.location)
@@ -140,19 +174,19 @@ class Simulation:
                         cmd.failure_reason = None
                         agent_commands.append(cmd)
                         agent.command_result(success=True, failure_reason=None,
-                                             err_code=SimulationErrorCode.SIM_SUCCESS, location=cmd.location)
+                                             err_code=SimulationErrorCode.SIM_SUCCESS, loc=cmd.location)
                     except SimulationError as se:
                         cmd.status = False
                         cmd.failure_reason = se.message
                         agent_commands.append(cmd)
                         agent.command_result(success=False, failure_reason=se.message, err_code=se.err_code,
-                                             location=se.loc)
+                                             loc=se.loc)
                     except Exception as e:
                         cmd.status = False
                         cmd.failure_reason = str(e)
                         agent_commands.append(cmd)
                         agent.command_result(success=False, failure_reason=str(e),
-                                             err_code=SimulationErrorCode.SIM_ERR_UNKNOWN, location=cmd.location)
+                                             err_code=SimulationErrorCode.SIM_ERR_UNKNOWN, loc=cmd.location)
                 for viewer in self.viewers:
                     viewer.show_state(self.round, agent_commands, self.space, self.agents)
                 self._publish_stats()

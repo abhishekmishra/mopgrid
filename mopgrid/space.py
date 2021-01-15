@@ -39,8 +39,8 @@ class Command:
         self.failure_reason = None
 
 
-def clean_command(agent_id):
-    return Command(agent_id=agent_id, command="clean")
+def clean_command(agent_id, loc):
+    return Command(agent_id=agent_id, command="clean", location=loc)
 
 
 def moveto_command(agent_id, loc):
@@ -128,7 +128,7 @@ class Space:
             raise SimulationError("Row/col is out of range: " + str(loc),
                                   SimulationErrorCode.SIM_ERR_OUT_OF_RANGE, loc)
 
-    def move_agent(self, agent_id, to_loc):
+    def move_to(self, agent_id, to_loc):
         self.check_range(to_loc)
         if agent_id in self.agents:
             a = self.agents[agent_id]

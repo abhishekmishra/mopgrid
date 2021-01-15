@@ -12,6 +12,7 @@ class Direction(IntEnum):
 
 def _new_location(loc):
     direction = random.randint(0, 3)
+    print(direction)
     if direction == Direction.E:
         return Coords(row=loc.row, col=loc.col + 1)
     elif direction == Direction.W:
@@ -40,9 +41,9 @@ class SimpleCleaningAgent:
 
     def next_command(self, loc, is_dirty):
         if is_dirty:
-            return clean_command(agent_id=self.agent_id)
+            return clean_command(agent_id=self.agent_id, loc=loc)
         else:
-            new_loc = _new_location(self.loc)
+            new_loc = _new_location(loc)
             return moveto_command(agent_id=self.agent_id,
                                   loc=new_loc)
 
