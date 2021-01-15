@@ -54,7 +54,7 @@ class ConsoleSimViewer:
                 if not has_agent:
                     print(' ', end='')
             print()
-        time.sleep(0.05)
+        time.sleep(0.2)
 
     def show_message(self, message):
         pass
@@ -85,8 +85,8 @@ class Simulation:
                 "space": {
                     "config": {
                         "size": {
-                            "row": 3,
-                            "col": 3
+                            "row": 4,
+                            "col": 4
                         },
                         "dirt_probability": 0.3,
                         "wall_probability": 0.1
