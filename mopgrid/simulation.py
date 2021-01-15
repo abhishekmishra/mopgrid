@@ -1,3 +1,4 @@
+import time
 from enum import Enum, auto
 from mopgrid.simerrors import SimulationError, SimulationErrorCode
 from mopgrid.space import Space, CellType, Coords
@@ -53,10 +54,7 @@ class ConsoleSimViewer:
                 if not has_agent:
                     print(' ', end='')
             print()
-            # if agents_space[i, j] == CellType.EMPTY:
-            #     print("  ")
-            # else:
-            #     print("XA")
+        time.sleep(0.05)
 
     def show_message(self, message):
         pass

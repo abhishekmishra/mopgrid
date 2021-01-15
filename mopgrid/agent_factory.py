@@ -1,5 +1,7 @@
 import random
 from enum import IntEnum
+
+from mopgrid.simerrors import SimulationErrorCode
 from mopgrid.space import Coords, clean_command, moveto_command
 
 
@@ -37,7 +39,8 @@ class SimpleCleaningAgent:
         self.cmd_success = success
         self.failure_reason = failure_reason
         self.err_code = err_code
-        self.loc = loc
+        if self.err_code == SimulationErrorCode.SIM_SUCCESS:
+            self.loc = loc
 
     def next_command(self, loc, is_dirty):
         if is_dirty:

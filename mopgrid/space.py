@@ -132,9 +132,9 @@ class Space:
         self.check_range(to_loc)
         if agent_id in self.agents:
             a = self.agents[agent_id]
-            if abs(to_loc.row - self.size.row) < 2 and abs(to_loc.col - self.size.col) < 2:
+            if abs(to_loc.row - a.loc.row) < 2 and abs(to_loc.col - a.loc.col) < 2:
                 if not self.is_wall(to_loc):
-                    if self.query(to_loc) == CellType.EMPTY:
+                    if self.is_clean(to_loc) or self.is_dirty(to_loc):
                         self.agent_space[a.loc.row, a.loc.col] = CellType.EMPTY
                         self.agent_space[to_loc.row, to_loc.col] = agent_id
                         a.move_to(to_loc)
