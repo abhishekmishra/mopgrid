@@ -11,6 +11,23 @@ class SimState(Enum):
     ABORTED = auto()
 
 
+class ConsoleSimViewer:
+    def sim_aborted(self):
+        print("Sim Aborted");
+
+    def sim_start(self, sim_num, sim_name):
+        print("Sim #" + str(sim_num) + ":" + str(sim_name) + " started.")
+
+    def sim_complete(self, sim_num, sim_name):
+        print("Sim #" + str(sim_num) + ":" + str(sim_name) + " completed.")
+
+    def show_state(self, sim_round, commands, space, agents_space):
+        pass
+
+    def show_message(self, message):
+        pass
+
+
 class Simulation:
     def __init__(self, config_file=None):
         self.agent_factory = AgentFactory()
@@ -97,7 +114,7 @@ class Simulation:
             agent_commands = []
             viewer.show_state(self.round, agent_commands, self.space, self.agents)
         for viewer in self.viewers:
-            viewer.signal_start(self.id, self.name)
+            viewer.sim_start(self.id, self.name)
 
         self._publish_stats()
 
@@ -142,7 +159,7 @@ class Simulation:
                 self.round += 1
 
         for viewer in self.viewers:
-            viewer.signal_complete(self.id, self.name)
+            viewer.sim_complete(self.id, self.name)
 
     def _publish_stats(self):
         pass
@@ -150,4 +167,5 @@ class Simulation:
 
 if __name__ == '__main__':
     sim = Simulation()
+    sim.viewers.append(ConsoleSimViewer())
     sim.run()
